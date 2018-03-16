@@ -8,7 +8,7 @@ namespace TheThreadingPool
 {
     public class Program
     {
-        public static int Requests;
+        public static int Requests = 0;
 
         public static void Main(string[] args)
         {
@@ -26,7 +26,6 @@ namespace TheThreadingPool
                 .ConfigureLogging(logging =>
                 {
                     logging.SetMinimumLevel(LogLevel.Critical);
-
                 })
                 .Build();
 

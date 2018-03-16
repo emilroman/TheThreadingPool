@@ -5,28 +5,49 @@ using System.Threading.Tasks;
 
 namespace TheClient
 {
-    class Program
+    public class Program
     {
+        private static HttpClient _httpClient = new HttpClient();
+        private static List<Action> _concurrentRequests;
+        private const string ApiUrl = "http://localhost:5000/home/index";
+
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
-            Console.WriteLine("How many simultaneous requests shall we make today?");
-
+            Console.WriteLine("How many simultaneous requests shall we make?");
             var requests = int.Parse(Console.ReadLine());
 
-            var listOfActions = new List<Action>();
+            _httpClient = new HttpClient();
+            _concurrentRequests = new List<Action>();
+
             for (int i = 0; i < requests; i++)
             {
-                var client = new HttpClient();
-                listOfActions.Add(() => { client.GetAsync("http://localhost:5000/home/index"); });
+                _concurrentRequests.Add(CreateRequest);
             }
+            LogRequestsNumber();
 
-            var options = new ParallelOptions { MaxDegreeOfParallelism = requests};
-
+            var options = new ParallelOptions { MaxDegreeOfParallelism = requests };
             while (true)
             {
-                Parallel.Invoke(options, listOfActions.ToArray());
+
+                if (Console.ReadKey().Key == ConsoleKey.UpArrow)
+                {
+                    _concurrentRequests.Add(CreateRequest);
+                    options.MaxDegreeOfParallelism++;
+                    LogRequestsNumber();
+                };
+                
+                Parallel.Invoke(options, _concurrentRequests.ToArray());
             }
+        }
+
+        private static void CreateRequest()
+        {
+            _httpClient.GetAsync(ApiUrl);
+        }
+        
+        private static void LogRequestsNumber()
+        {
+            Console.WriteLine($"Number of parallel request: {_concurrentRequests.Count}");
         }
     }
 }

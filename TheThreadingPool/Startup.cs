@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,7 @@ namespace TheThreadingPool
 
             app.Use(async (context, next) =>
             {
+                Console.WriteLine($"Started request on thread: {Thread.CurrentThread.ManagedThreadId}");
                 Interlocked.Increment(ref Program.Requests);
                 await next();
                 Interlocked.Decrement(ref Program.Requests);
