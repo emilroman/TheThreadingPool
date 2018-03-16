@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -9,7 +10,7 @@ namespace TheClient
     {
         private static HttpClient _httpClient = new HttpClient();
         private static List<Task> _concurrentRequests;
-        private const string ApiUrl = "http://localhost:5000/home/index";
+        private const string ApiUrl = "http://localhost:5000/home";
 
         static void Main(string[] args)
         {
@@ -27,12 +28,23 @@ namespace TheClient
 
             while (true)
             {
+                var key = Console.ReadKey().Key;
 
-                if (Console.ReadKey().Key == ConsoleKey.UpArrow)
+                switch (key)
                 {
-                    _concurrentRequests.Add(Task.Factory.StartNew(CreateRequest));
-                    LogRequestsNumber();
-                };
+                    case ConsoleKey.UpArrow:
+                        _concurrentRequests.Add(Task.Factory.StartNew(CreateRequest));
+                        LogRequestsNumber();
+                        break;
+                    case ConsoleKey.DownArrow:
+                        if (_concurrentRequests.Any())
+                        {
+                            _concurrentRequests.RemoveAt(0);
+                        }
+                        
+                        LogRequestsNumber();
+                        break;
+                }
             }
         }
 
