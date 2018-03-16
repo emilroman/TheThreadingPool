@@ -7,9 +7,18 @@ namespace TheThreadingPool.Controllers
     public class HomeController : Controller
     {
         [HttpGet]
-        public string Index()
+        [Route("Sync")]
+        public string IndexSync()
         {
             Task.Delay(2000).Wait();
+
+            return "Awesome!!!";
+        }
+
+        [HttpGet]
+        public async Task<string> IndexAsync()
+        {
+            await Task.Delay(2000);
 
             return "Awesome!!!";
         }
