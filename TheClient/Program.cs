@@ -8,7 +8,7 @@ namespace TheClient
     public class Program
     {
         private static HttpClient _httpClient = new HttpClient();
-        private static List<Action> _concurrentRequests;
+        private static List<Task> _concurrentRequests;
         private const string ApiUrl = "http://localhost:5000/home/index";
 
         static void Main(string[] args)
@@ -17,32 +17,28 @@ namespace TheClient
             var requests = int.Parse(Console.ReadLine());
 
             _httpClient = new HttpClient();
-            _concurrentRequests = new List<Action>();
+            _concurrentRequests = new List<Task>();
 
             for (int i = 0; i < requests; i++)
             {
-                _concurrentRequests.Add(CreateRequest);
+                _concurrentRequests.Add(Task.Factory.StartNew(CreateRequest));
             }
             LogRequestsNumber();
 
-            var options = new ParallelOptions { MaxDegreeOfParallelism = requests };
             while (true)
             {
 
                 if (Console.ReadKey().Key == ConsoleKey.UpArrow)
                 {
-                    _concurrentRequests.Add(CreateRequest);
-                    options.MaxDegreeOfParallelism++;
+                    _concurrentRequests.Add(Task.Factory.StartNew(CreateRequest));
                     LogRequestsNumber();
                 };
-                
-                Parallel.Invoke(options, _concurrentRequests.ToArray());
             }
         }
 
-        private static void CreateRequest()
+        private static Task CreateRequest()
         {
-            _httpClient.GetAsync(ApiUrl);
+            return _httpClient.GetAsync(ApiUrl).ContinueWith(task => CreateRequest());
         }
         
         private static void LogRequestsNumber()

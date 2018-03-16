@@ -25,7 +25,6 @@ namespace TheThreadingPool
 
             app.Use(async (context, next) =>
             {
-                Console.WriteLine($"Started request on thread: {Thread.CurrentThread.ManagedThreadId}");
                 Interlocked.Increment(ref Program.Requests);
                 await next();
                 Interlocked.Decrement(ref Program.Requests);
